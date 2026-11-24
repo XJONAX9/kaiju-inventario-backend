@@ -4,7 +4,7 @@
 
 Backend desarrollado para la aplicación móvil Kaiju Inventario.
 
-Permite administrar productos, controlar el stock disponible y registrar movimientos de inventario mediante servicios REST.
+Permite administrar productos, controlar el stock disponible, registrar movimientos de inventario y gestionar el registro e inicio de sesión de usuarios mediante servicios REST.
 
 ---
 
@@ -17,10 +17,11 @@ Permite administrar productos, controlar el stock disponible y registrar movimie
 
 ## Tecnologías Utilizadas
 
-- Java
+- Java 21
 - Spring Boot
 - Spring Data JPA
 - H2 Database
+- Spring Security Crypto (BCrypt)
 - Maven
 
 ---
@@ -59,6 +60,19 @@ Atributos:
 - fecha
 - codigoProducto
 
+### UsuarioKaiju
+
+Tabla: `usuario_kaiju`
+
+Atributos:
+
+- id
+- rut (único)
+- nombreCompleto
+- email (único)
+- passwordHash (contraseña cifrada con BCrypt)
+- rol (BODEGA, VENTAS o ADMIN)
+
 ---
 
 ## Funcionalidades
@@ -76,12 +90,24 @@ Atributos:
 - Registrar salidas de inventario
 - Actualizar automáticamente el stock
 
+### Gestión de Usuarios
+
+- Registrar usuarios
+- Iniciar sesión y entregar un token JWT
+- Consultar los usuarios registrados
+
 ### Reglas de Negocio
 
 - El stock aumenta mediante entradas.
 - El stock disminuye mediante salidas.
 - No se permite stock negativo.
 - Validación de existencia de producto.
+- El RUT se valida con su dígito verificador y se guarda con formato `12345678-5`.
+- No se permiten RUT ni correos repetidos.
+- La contraseña debe tener al menos 6 caracteres y se guarda cifrada (BCrypt), nunca en texto plano.
+- El rol debe ser BODEGA, VENTAS o ADMIN.
+- El correo se guarda en minúsculas.
+- Si el correo o la contraseña fallan al iniciar sesión, se responde el mismo mensaje para no revelar cuál de los dos es incorrecto.
 
 ---
 
@@ -137,6 +163,65 @@ POST /movimientos
 
 ---
 
+### Autenticación
+
+#### Registrar usuario
+
+```http
+POST /api/v1/kaiju/auth/registro
+```
+
+Cuerpo (JSON):
+
+```json
+{
+  "nombreCompleto": "Juan Perez",
+  "rut": "12.345.678-5",
+  "email": "juan@correo.cl",
+  "password": "123456",
+  "rol": "ADMIN"
+}
+```
+
+Respuesta: `201 Created` con los datos del usuario (sin contraseña).
+
+#### Iniciar sesión
+
+```http
+POST /api/v1/kaiju/auth/login
+```
+
+Cuerpo (JSON):
+
+```json
+{
+  "email": "juan@correo.cl",
+  "password": "123456"
+}
+```
+
+Respuesta: `200 OK` con `accessToken` (JWT), `tokenType` (`Bearer`), `expiresIn` (segundos) y los datos del `usuario`.
+
+#### Listar usuarios registrados
+
+```http
+GET /api/v1/kaiju/auth/usuarios
+```
+
+Respuesta: `200 OK` con la lista de usuarios (sin contraseñas). Pensado para revisar los datos durante el desarrollo; no exige inicio de sesión.
+
+#### Códigos de error
+
+Los errores responden con el formato `{"message": "..."}`:
+
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 400 | Datos inválidos (RUT, correo, contraseña corta, rol inexistente) |
+| 401 | Correo o contraseña incorrectos |
+| 409 | RUT o correo ya registrados |
+
+---
+
 ## Pruebas Unitarias
 
 Implementadas:
@@ -165,11 +250,34 @@ Motor utilizado:
 H2 Database
 ```
 
-Configuración:
+Los datos se guardan en un archivo local (`./data/kaijudb`), por lo que productos, movimientos y usuarios se conservan al reiniciar el servidor.
+
+Consola web:
 
 ```text
 http://localhost:8080/h2-console
 ```
+
+Datos de conexión:
+
+- JDBC URL: `jdbc:h2:file:./data/kaijudb`
+- Usuario: `sa`
+- Contraseña: (vacía)
+
+Consulta para ver los usuarios registrados:
+
+```sql
+SELECT * FROM usuario_kaiju;
+```
+
+---
+
+## Configuración
+
+En `src/main/resources/application.properties`:
+
+- `kaiju.jwt.secret`: clave para firmar el token JWT (mínimo 32 caracteres). Puede definirse con la variable de entorno `KAIJU_JWT_SECRET`.
+- `kaiju.jwt.expires-in`: duración del token en segundos (por defecto 3600).
 
 ---
 
@@ -187,8 +295,10 @@ mvn spring-boot:run
 http://localhost:8080
 ```
 
+Desde el emulador de Android la misma dirección es `http://10.0.2.2:8080`.
+
 ---
 
 ## Integración
 
-Este backend se encuentra conectado a una aplicación Android desarrollada en Kotlin utilizando Retrofit para la comunicación mediante servicios REST.
+Este backend se encuentra conectado a una aplicación Android desarrollada en Kotlin utilizando Retrofit para la comunicación mediante servicios REST, tanto para el inventario como para el registro e inicio de sesión de usuarios.
