@@ -119,16 +119,12 @@ Atributos:
 
 - Registrar usuarios
 - Iniciar sesión y entregar un token JWT
-<<<<<<< HEAD
-- Consultar los usuarios registrados
-=======
 - Consultar los usuarios registrados (Admin)
 - Eliminar cuentas (Admin)
 
 ### Configuración global
 
 - Consultar y cambiar el Modo especial. El cambio lo hace un Admin y vale para todos los usuarios.
->>>>>>> a940fa6 (version final)
 
 ### Reglas de Negocio
 
@@ -139,11 +135,6 @@ Atributos:
 - El RUT se valida con su dígito verificador y se guarda con formato `12345678-5`.
 - No se permiten RUT ni correos repetidos.
 - La contraseña debe tener al menos 6 caracteres y se guarda cifrada (BCrypt), nunca en texto plano.
-<<<<<<< HEAD
-- El rol debe ser BODEGA, VENTAS o ADMIN.
-- El correo se guarda en minúsculas.
-- Si el correo o la contraseña fallan al iniciar sesión, se responde el mismo mensaje para no revelar cuál de los dos es incorrecto.
-=======
 - El rol debe ser BODEGA o ADMIN. Si no se indica, se asigna BODEGA.
 - Solo puede existir un ADMIN. Si se intenta registrar otro, responde 409 "Ya hay un administrador registrado".
 - El ADMIN puede eliminar su propia cuenta. Después se puede registrar una cuenta nueva con rol ADMIN.
@@ -171,7 +162,6 @@ Todas las rutas, salvo registro e inicio de sesión, exigen el encabezado `Autho
 | Cambiar la configuración | Sí | No |
 
 El rol se consulta en la base de datos en cada llamada, por lo que si una cuenta se elimina, el cambio rige de inmediato aunque su token no haya vencido.
->>>>>>> a940fa6 (version final)
 
 ---
 
@@ -243,19 +233,11 @@ Cuerpo (JSON):
   "rut": "12.345.678-5",
   "email": "juan@correo.cl",
   "password": "123456",
-<<<<<<< HEAD
-  "rol": "ADMIN"
-}
-```
-
-Respuesta: `201 Created` con los datos del usuario (sin contraseña).
-=======
   "rol": "BODEGA"
 }
 ```
 
 Respuesta: `201 Created` con los datos del usuario (sin contraseña). Si se envía `"rol": "ADMIN"` y ya existe un administrador, responde `409 Conflict`.
->>>>>>> a940fa6 (version final)
 
 #### Iniciar sesión
 
@@ -274,19 +256,12 @@ Cuerpo (JSON):
 
 Respuesta: `200 OK` con `accessToken` (JWT), `tokenType` (`Bearer`), `expiresIn` (segundos) y los datos del `usuario`.
 
-<<<<<<< HEAD
-#### Listar usuarios registrados
-=======
 #### Listar usuarios registrados (Admin)
->>>>>>> a940fa6 (version final)
 
 ```http
 GET /api/v1/kaiju/auth/usuarios
 ```
 
-<<<<<<< HEAD
-Respuesta: `200 OK` con la lista de usuarios (sin contraseñas). Pensado para revisar los datos durante el desarrollo; no exige inicio de sesión.
-=======
 Respuesta: `200 OK` con la lista de usuarios (sin contraseñas).
 
 #### Eliminar usuario (Admin)
@@ -324,7 +299,6 @@ Cuerpo (JSON):
 ```
 
 El cambio se aplica a todos los usuarios.
->>>>>>> a940fa6 (version final)
 
 #### Códigos de error
 
@@ -333,15 +307,10 @@ Los errores responden con el formato `{"message": "..."}`:
 | Código | Cuándo ocurre |
 |--------|---------------|
 | 400 | Datos inválidos (RUT, correo, contraseña corta, rol inexistente) |
-<<<<<<< HEAD
-| 401 | Correo o contraseña incorrectos |
-| 409 | RUT o correo ya registrados |
-=======
 | 401 | Correo o contraseña incorrectos, o sesión no válida o vencida |
 | 403 | El rol del usuario no tiene permiso para la acción |
 | 404 | Usuario no encontrado |
 | 409 | RUT o correo ya registrados, ya existe un administrador, o código de producto repetido |
->>>>>>> a940fa6 (version final)
 
 ---
 
@@ -387,11 +356,7 @@ Datos de conexión:
 - Usuario: `sa`
 - Contraseña: (vacía)
 
-<<<<<<< HEAD
-Consulta para ver los usuarios registrados:
-=======
 Consulta para ver los usuarios registrados (también disponible en `GET /api/v1/kaiju/auth/usuarios` con una sesión de Admin):
->>>>>>> a940fa6 (version final)
 
 ```sql
 SELECT * FROM usuario_kaiju;
