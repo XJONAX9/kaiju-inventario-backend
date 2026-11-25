@@ -85,19 +85,6 @@ Atributos:
 - id
 - modoEspecial
 
-### UsuarioKaiju
-
-Tabla: `usuario_kaiju`
-
-Atributos:
-
-- id
-- rut (único)
-- nombreCompleto
-- email (único)
-- passwordHash (contraseña cifrada con BCrypt)
-- rol (BODEGA, VENTAS o ADMIN)
-
 ---
 
 ## Funcionalidades
