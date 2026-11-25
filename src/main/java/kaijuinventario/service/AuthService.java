@@ -115,7 +115,7 @@ public class AuthService {
         return new UsuarioResponse(u.getId(), u.getRut(), u.getNombreCompleto(), u.getEmail(), u.getRol());
     }
 
-    static String normalizarRut(String rutOriginal) {
+        static String normalizarRut(String rutOriginal) {
         if (rutOriginal == null) return null;
         String limpio = rutOriginal.replace(".", "").replace("-", "").trim().toUpperCase();
         if (limpio.length() < 8 || limpio.length() > 9) return null;
@@ -123,21 +123,10 @@ public class AuthService {
         String cuerpo = limpio.substring(0, limpio.length() - 1);
         char dv = limpio.charAt(limpio.length() - 1);
         if (!cuerpo.chars().allMatch(Character::isDigit)) return null;
-        if (calcularDv(cuerpo) != dv) return null;
+        if (!Character.isDigit(dv) && dv != 'K') return null;
 
         return cuerpo + "-" + dv;
     }
-
-    private static char calcularDv(String cuerpo) {
-        int suma = 0;
-        int multiplicador = 2;
-        for (int i = cuerpo.length() - 1; i >= 0; i--) {
-            suma += (cuerpo.charAt(i) - '0') * multiplicador;
-            multiplicador = (multiplicador == 7) ? 2 : multiplicador + 1;
-        }
-        int resultado = 11 - (suma % 11);
-        if (resultado == 11) return '0';
-        if (resultado == 10) return 'K';
-        return (char) ('0' + resultado);
-    }
 }
+
+
