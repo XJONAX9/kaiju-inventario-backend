@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 public class ProductoService {
-
     private final ProductoRepository repository;
 
     public ProductoService(ProductoRepository repository) {
@@ -29,7 +28,6 @@ public class ProductoService {
     }
 
     public Producto actualizar(String codigo, Producto productoActualizado) {
-
         Producto producto = repository.findById(codigo).orElse(null);
 
         if (producto == null) {

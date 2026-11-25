@@ -12,14 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.List;
 
 @Service
 public class AuthService {
-
-    private static final Set<String> ROLES = Set.of("BODEGA", "VENTAS", "ADMIN");
+    private static final Set<String> ROLES = Set.of("BODEGA", "ADMIN");
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
     private final UsuarioKaijuRepository repository;
@@ -59,8 +58,14 @@ public class AuthService {
         if (password.length() < 6) {
             throw new AuthException(HttpStatus.BAD_REQUEST, "La contraseña debe tener al menos 6 caracteres");
         }
+        if (rol.isEmpty()) {
+            rol = "BODEGA";
+        }
         if (!ROLES.contains(rol)) {
-            throw new AuthException(HttpStatus.BAD_REQUEST, "Rol inválido (BODEGA, VENTAS o ADMIN)");
+            throw new AuthException(HttpStatus.BAD_REQUEST, "Rol inválido (BODEGA o ADMIN)");
+        }
+        if (rol.equals("ADMIN") && repository.existsByRol("ADMIN")) {
+            throw new AuthException(HttpStatus.CONFLICT, "Ya hay un administrador registrado");
         }
 
         if (repository.existsByRut(rut)) {
@@ -100,10 +105,15 @@ public class AuthService {
         return repository.findAll().stream().map(this::aRespuesta).toList();
     }
 
+    public void eliminar(Long id) {
+        UsuarioKaiju usuario = repository.findById(id)
+                .orElseThrow(() -> new AuthException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        repository.delete(usuario);
+    }
+
     private UsuarioResponse aRespuesta(UsuarioKaiju u) {
         return new UsuarioResponse(u.getId(), u.getRut(), u.getNombreCompleto(), u.getEmail(), u.getRol());
     }
-
 
     static String normalizarRut(String rutOriginal) {
         if (rutOriginal == null) return null;

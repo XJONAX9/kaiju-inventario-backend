@@ -10,7 +10,6 @@ import java.util.List;
 
 @Service
 public class MovimientoInventarioService {
-
     private final MovimientoInventarioRepository repository;
 
     public List<MovimientoInventario> listar() {
@@ -30,7 +29,6 @@ public class MovimientoInventarioService {
     public MovimientoInventario guardar(
         MovimientoInventario movimiento
 ) {
-
     Producto producto = productoRepository
             .findById(movimiento.getCodigoProducto())
             .orElse(null);
@@ -42,16 +40,13 @@ public class MovimientoInventarioService {
     if ("ENTRADA".equalsIgnoreCase(
             movimiento.getTipoMovimiento()
     )) {
-
         producto.setStock(
                 producto.getStock()
                         + movimiento.getCantidad()
         );
-
     } else if ("SALIDA".equalsIgnoreCase(
         movimiento.getTipoMovimiento()
     )) {
-
         if (movimiento.getCantidad() > producto.getStock()) {
             throw new RuntimeException(
                     "Stock insuficiente para realizar la salida"
@@ -64,12 +59,8 @@ public class MovimientoInventarioService {
         );
     }
 
-
-
-
     productoRepository.save(producto);
 
     return repository.save(movimiento);
 }
-
 }

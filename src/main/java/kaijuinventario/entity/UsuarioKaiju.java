@@ -10,7 +10,6 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "usuario_kaiju")
 public class UsuarioKaiju {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,11 +23,9 @@ public class UsuarioKaiju {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // Hash BCrypt: la contraseña real nunca se guarda
     @Column(nullable = false)
     private String passwordHash;
 
-    // BODEGA, VENTAS o ADMIN
     @Column(nullable = false)
     private String rol;
 

@@ -14,6 +14,9 @@ public class Producto {
     private Integer stock;
     private Integer stockMinimo;
 
+    private String creadoPor;
+    private String creadoPorEmail;
+
     public Producto() {
     }
 
@@ -55,5 +58,21 @@ public class Producto {
 
     public void setStockMinimo(Integer stockMinimo) {
         this.stockMinimo = stockMinimo;
+    }
+
+    public String getCreadoPor() {
+        return creadoPor;
+    }
+
+    public void setCreadoPor(String creadoPor) {
+        this.creadoPor = creadoPor;
+    }
+
+    public String getCreadoPorEmail() {
+        return creadoPorEmail;
+    }
+
+    public void setCreadoPorEmail(String creadoPorEmail) {
+        this.creadoPorEmail = creadoPorEmail;
     }
 }

@@ -1,7 +1,6 @@
 package kaijuinventario.dto;
 
 public class KaijuDtos {
-
     public record RegistroRequest(
             String nombreCompleto,
             String rut,
@@ -28,5 +27,13 @@ public class KaijuDtos {
             String tokenType,
             long expiresIn,
             UsuarioResponse usuario
+    ) {}
+
+    public record ConfiguracionRequest(
+            Boolean modoEspecial
+    ) {}
+
+    public record ConfiguracionResponse(
+            boolean modoEspecial
     ) {}
 }
